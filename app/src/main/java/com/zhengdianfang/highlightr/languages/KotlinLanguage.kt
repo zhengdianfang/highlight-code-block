@@ -10,16 +10,20 @@ object KotlinLanguage {
     private val KEYWORDS = setOf(
         "fun", "val", "var", "class", "interface", "object", "package", "import",
         "if", "else", "when", "for", "while", "do", "return", "break", "continue",
-        "is", "in", "as", "this", "super", "null", "true", "false",
+        "is", "in", "as", "this", "super",
         "try", "catch", "finally", "throw",
         "public", "private", "protected", "internal",
         "abstract", "open", "final", "override", "data", "sealed", "const", "suspend",
-        "companion", "where"
+        "companion", "where", "external", "expect", "actual"
     )
 
     private val TYPES = setOf(
         "Int", "Long", "Short", "Byte", "Float", "Double", "Boolean", "Char",
         "String", "Any", "Unit", "Nothing", "List", "MutableList", "Map", "MutableMap"
+    )
+
+    private val LITERALS = setOf(
+        "null", "true", "false"
     )
 
     val definition = LanguageDefinition(
@@ -61,7 +65,18 @@ object KotlinLanguage {
             )
         ),
         keywords = KEYWORDS,
-        types = TYPES
+        types = TYPES,
+        literals = LITERALS,
+        isFunctionName = { source, start, end ->
+            val before = source.substring(0, start)
+            if (before.trimEnd().endsWith("fun")) return@LanguageDefinition true
+
+            var i = end
+            while (i < source.length && source[i].isWhitespace()) i++
+            if (i < source.length && source[i] == '(') return@LanguageDefinition true
+
+            false
+        }
     )
 
     fun register() {

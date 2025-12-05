@@ -17,11 +17,9 @@ class HighlighterEngine {
 
         while (index < length) {
             val remaining = code.substring(index)
-
-            // 1. 若在 Block 中，寻找 end
             if (currentBlockRule != null) {
                 val endMatch = currentBlockRule.end.find(remaining)
-                if (endMatch != null && endMatch.range.first == 0) {
+                if (endMatch != null) {
                     val endIndex = index + endMatch.range.last + 1
                     tokens += CodeToken(
                         type = currentBlockRule.type,
@@ -32,7 +30,6 @@ class HighlighterEngine {
                     currentBlockRule = null
                     continue
                 } else {
-                    // 找不到 end，认为直到末尾都是该 Block
                     tokens += CodeToken(
                         type = currentBlockRule.type,
                         start = blockStartIndex,
@@ -42,7 +39,6 @@ class HighlighterEngine {
                 }
             }
 
-            // 2. 尝试匹配 Block begin
             var matched = false
             for (rule in language.blockRules) {
                 val match = rule.begin.find(remaining)
@@ -56,7 +52,6 @@ class HighlighterEngine {
             }
             if (matched) continue
 
-            // 3. 尝试匹配 Inline 规则
             val inlineMatch = matchInlineRules(remaining, language.inlineRules)
             if (inlineMatch != null) {
                 val (rule, range) = inlineMatch
@@ -67,7 +62,6 @@ class HighlighterEngine {
                 continue
             }
 
-            // 4. 处理普通字符/空白/标识符
             val ch = code[index]
             if (ch.isWhitespace()) {
                 val start = index
@@ -83,18 +77,18 @@ class HighlighterEngine {
                 val type = when {
                     language.keywords.contains(ident) -> TokenType.KEYWORD
                     language.types.contains(ident) -> TokenType.TYPE_NAME
+                    language.literals.contains(ident) -> TokenType.LITERAL
                     ident.startsWith("@") -> TokenType.ANNOTATION
+                    language.isFunctionName(code, start, i) -> TokenType.FUNCTION_NAME
                     else -> TokenType.IDENTIFIER
                 }
                 tokens += CodeToken(type, start, i)
                 index = i
             } else {
-                // 符号或其他
                 tokens += CodeToken(TokenType.PUNCTUATION, index, index + 1)
                 index++
             }
         }
-
         return tokens
     }
 
@@ -105,7 +99,7 @@ class HighlighterEngine {
         var best: Pair<LexRule.InlineRule, IntRange>? = null
         for (rule in rules) {
             val m = rule.pattern.find(remaining) ?: continue
-            if (m.range.first != 0) continue // 必须从当前位置开始
+            if (m.range.first != 0) continue
             if (best == null || rule.priority > best.first.priority) {
                 best = rule to m.range
             }

@@ -7,18 +7,19 @@ data class CodeToken(
 )
 
 enum class TokenType {
-    KEYWORD,
-    IDENTIFIER,
-    STRING,
-    NUMBER,
-    COMMENT,
-    ANNOTATION,
-    TYPE_NAME,
-    FUNCTION_NAME,
-    OPERATOR,
-    PUNCTUATION,
-    WHITESPACE,
-    PLAIN
+        KEYWORD,
+        IDENTIFIER,
+        STRING,
+        NUMBER,
+        COMMENT,
+        ANNOTATION,
+        TYPE_NAME,
+        LITERAL,
+        FUNCTION_NAME,
+        OPERATOR,
+        PUNCTUATION,
+        WHITESPACE,
+        PLAIN
 }
 
 data class TextStyle(
@@ -57,5 +58,7 @@ data class LanguageDefinition(
     val blockRules: List<LexRule.BlockRule>,
     val inlineRules: List<LexRule.InlineRule>,
     val keywords: Set<String> = emptySet(),
-    val types: Set<String> = emptySet()
+    val types: Set<String> = emptySet(),
+    val literals: Set<String> = emptySet(),
+    val isFunctionName: (source: String, start: Int, end: Int) -> Boolean = { _, _, _ -> false }
 )

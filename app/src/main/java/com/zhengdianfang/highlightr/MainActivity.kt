@@ -4,19 +4,9 @@ import android.graphics.Typeface
 import android.os.Bundle
 import android.widget.TextView
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.lifecycleScope
 import com.zhengdianfang.highlightr.languages.KotlinLanguage
 import com.zhengdianfang.highlightr.theme.DefaultThemes
-import com.zhengdianfang.highlightr.ui.theme.HighlightrTheme
 
 class MainActivity : ComponentActivity() {
     private lateinit var tvCode: TextView
@@ -40,11 +30,12 @@ class MainActivity : ComponentActivity() {
             // 简单的示例函数
             class HelloKotlin {
 
-                fun sayHello(name: String?): String {
+                @Composable
+                fun sayHello(name: String?): Boolean {
                     val safeName = name ?: "World"
                     println("Hello, safeName")
 
-                    return "Hello, safeName"
+                    return true 
                 }
 
                 suspend fun loadData(scope: CoroutineScope) {
