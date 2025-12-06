@@ -74,14 +74,15 @@ class HighlighterEngine {
                 var i = index + 1
                 while (i < length && code[i].isJavaIdentifierPart()) i++
                 val ident = code.substring(start, i)
-                val type = when {
-                    language.keywords.contains(ident) -> TokenType.KEYWORD
-                    language.types.contains(ident) -> TokenType.TYPE_NAME
-                    language.literals.contains(ident) -> TokenType.LITERAL
-                    ident.startsWith("@") -> TokenType.ANNOTATION
-                    language.isFunctionName(code, start, i) -> TokenType.FUNCTION_NAME
-                    else -> TokenType.IDENTIFIER
-                }
+                val type = language.extensions.classifyIdentifier(code, start, i, ident)
+                    ?: when {
+                        language.keywords.contains(ident) -> TokenType.KEYWORD
+                        language.types.contains(ident) -> TokenType.TYPE_NAME
+                        language.literals.contains(ident) -> TokenType.LITERAL
+                        ident.startsWith("@") -> TokenType.ANNOTATION
+                        language.isFunctionName(code, start, i) -> TokenType.FUNCTION_NAME
+                        else -> TokenType.IDENTIFIER
+                    }
                 tokens += CodeToken(type, start, i)
                 index = i
             } else {

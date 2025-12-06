@@ -2,6 +2,7 @@ package com.zhengdianfang.highlightr.languages
 
 import com.zhengdianfang.highlightr.LanguageRegistry
 import com.zhengdianfang.highlightr.model.LanguageDefinition
+import com.zhengdianfang.highlightr.model.LanguageExtensions
 import com.zhengdianfang.highlightr.model.LexRule
 import com.zhengdianfang.highlightr.model.TokenType
 
@@ -67,6 +68,17 @@ object KotlinLanguage {
         keywords = KEYWORDS,
         types = TYPES,
         literals = LITERALS,
+        extensions = LanguageExtensions(
+            classifyIdentifier = { source, start, end, ident ->
+                if (isAfterClassLikeKeyword(source, start)) {
+                    return@LanguageExtensions TokenType.TYPE_NAME
+                }
+                if (isInTypePosition(source, start)) {
+                    return@LanguageExtensions TokenType.TYPE_NAME
+                }
+                null
+            },
+        ),
         isFunctionName = { source, start, end ->
             val before = source.substring(0, start)
             if (before.trimEnd().endsWith("fun")) return@LanguageDefinition true
@@ -78,6 +90,27 @@ object KotlinLanguage {
             false
         }
     )
+
+    private fun isAfterClassLikeKeyword(source: String, identStart: Int): Boolean {
+        var j = identStart - 1
+        while (j >= 0 && source[j].isWhitespace()) j--
+        if (j < 0) return false
+        val from = (j - 20).coerceAtLeast(0)
+        val prefix = source.substring(from, identStart)
+
+        val trimmed = prefix.trimEnd()
+        return trimmed.endsWith("class") ||
+                trimmed.endsWith("interface") ||
+                trimmed.endsWith("object")
+    }
+
+    private fun isInTypePosition(source: String, identStart: Int): Boolean {
+        var j = identStart - 1
+        while (j >= 0 && source[j].isWhitespace()) j--
+
+        if (j < 0) return false
+        return source[j] == ':'
+    }
 
     fun register() {
         LanguageRegistry.register(definition)

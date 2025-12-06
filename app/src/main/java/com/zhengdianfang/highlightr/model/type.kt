@@ -60,5 +60,11 @@ data class LanguageDefinition(
     val keywords: Set<String> = emptySet(),
     val types: Set<String> = emptySet(),
     val literals: Set<String> = emptySet(),
-    val isFunctionName: (source: String, start: Int, end: Int) -> Boolean = { _, _, _ -> false }
+    val isFunctionName: (source: String, start: Int, end: Int) -> Boolean = { _, _, _ -> false },
+    val extensions: LanguageExtensions = LanguageExtensions()
+)
+
+data class LanguageExtensions(
+    val classifyIdentifier: (source: String, start: Int, end: Int, ident: String) -> TokenType? =
+        { _, _, _, _ -> null },
 )
