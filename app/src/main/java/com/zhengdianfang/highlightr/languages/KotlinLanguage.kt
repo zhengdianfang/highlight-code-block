@@ -7,6 +7,7 @@ import com.zhengdianfang.highlightr.model.LexRule
 import com.zhengdianfang.highlightr.model.TokenType
 
 object KotlinLanguage {
+    private const val LANGUAGE_NAME = "kotlin"
 
     private val KEYWORDS = setOf(
         "fun", "val", "var", "class", "interface", "object", "package", "import",

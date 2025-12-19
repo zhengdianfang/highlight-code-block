@@ -2,9 +2,12 @@ package com.zhengdianfang.highlightr
 
 import android.graphics.Typeface
 import android.os.Bundle
+import android.text.method.ScrollingMovementMethod
 import android.widget.TextView
 import androidx.activity.ComponentActivity
 import androidx.lifecycle.lifecycleScope
+import com.zhengdianfang.highlightr.languages.JavaLanguage
+import com.zhengdianfang.highlightr.languages.JavaScriptLanguage
 import com.zhengdianfang.highlightr.languages.KotlinLanguage
 import com.zhengdianfang.highlightr.theme.DefaultThemes
 
@@ -17,46 +20,37 @@ class MainActivity : ComponentActivity() {
 
         tvCode = findViewById(R.id.tvCode)
 
-        // 注册 Kotlin 语言定义（正式项目你可以放在 Application 里）
+        JavaScriptLanguage.register()
         KotlinLanguage.register()
+        JavaLanguage.register()
 
         val sampleCode = """
-            package com.example.demo
+          public class Singleton {
 
-            import kotlinx.coroutines.CoroutineScope
-            import kotlinx.coroutines.Dispatchers
-            import kotlinx.coroutines.launch
+            private static Singleton instance = new Singleton();
 
-            // 简单的示例函数
-            class HelloKotlin {
+            private Singleton() {}
 
-                @Composable
-                fun sayHello(name: String?): Boolean {
-                    val safeName = name ?: "World"
-                    println("Hello, safeName")
-
-                    return true 
-                }
-
-                suspend fun loadData(scope: CoroutineScope) {
-                    scope.launch(Dispatchers.IO) {
-                        // TODO: 执行耗时操作
-                        val result = 42
-                        println("Result = result")
-                    }
-                }
+            public static Singleton getInstance() {
+                return instance;
             }
+
+        } 
         """.trimIndent()
 
         CodeHighlighter.highlightInto(
             textView = tvCode,
             code = sampleCode,
-            languageId = "kotlin",
+            languageId =  JavaLanguage.LANGUAGE_NAME,
             theme = DefaultThemes.LightTheme,
             scope = lifecycleScope
         )
 
-        // 双保险
-        tvCode.typeface = Typeface.MONOSPACE
+        tvCode.apply {
+            setTextIsSelectable(true)
+            typeface = Typeface.MONOSPACE
+            setHorizontallyScrolling(true)
+            movementMethod = ScrollingMovementMethod.getInstance()
+        }
     }
 }
