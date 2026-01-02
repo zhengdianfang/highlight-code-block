@@ -1,56 +1,35 @@
 package com.zhengdianfang.highlightr
 
-import android.graphics.Typeface
+import android.app.Activity
 import android.os.Bundle
-import android.text.method.ScrollingMovementMethod
-import android.widget.TextView
-import androidx.activity.ComponentActivity
-import androidx.lifecycle.lifecycleScope
-import com.zhengdianfang.highlightr.languages.JavaLanguage
-import com.zhengdianfang.highlightr.languages.JavaScriptLanguage
-import com.zhengdianfang.highlightr.languages.KotlinLanguage
-import com.zhengdianfang.highlightr.theme.DefaultThemes
+import android.widget.LinearLayout
+import com.zhengdianfang.highlightr.ui.HighlightTextView
 
-class MainActivity : ComponentActivity() {
-    private lateinit var tvCode: TextView
-
+class MainActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-
-        tvCode = findViewById(R.id.tvCode)
-
-        JavaScriptLanguage.register()
-        KotlinLanguage.register()
-        JavaLanguage.register()
-
-        val sampleCode = """
-          public class Singleton {
-
-            private static Singleton instance = new Singleton();
-
-            private Singleton() {}
-
-            public static Singleton getInstance() {
-                return instance;
+        
+        val layout = LinearLayout(this)
+        layout.orientation = LinearLayout.VERTICAL
+        layout.setPadding(32, 32, 32, 32)
+        layout.setBackgroundColor(0xFF000000.toInt()) // Black background
+        
+        val highlightTextView = HighlightTextView(this)
+        highlightTextView.textSize = 16f
+        highlightTextView.setSource(
+            """
+            // Example Kotlin code
+            package com.example
+            
+            fun main(args: Array<String>) {
+                val greeting = "Hello, World!"
+                println(greeting)
             }
-
-        } 
-        """.trimIndent()
-
-        CodeHighlighter.highlightInto(
-            textView = tvCode,
-            code = sampleCode,
-            languageId =  JavaLanguage.LANGUAGE_NAME,
-            theme = DefaultThemes.LightTheme,
-            scope = lifecycleScope
+            """.trimIndent(),
+            "kotlin"
         )
-
-        tvCode.apply {
-            setTextIsSelectable(true)
-            typeface = Typeface.MONOSPACE
-            setHorizontallyScrolling(true)
-            movementMethod = ScrollingMovementMethod.getInstance()
-        }
+        
+        layout.addView(highlightTextView)
+        setContentView(layout)
     }
 }
