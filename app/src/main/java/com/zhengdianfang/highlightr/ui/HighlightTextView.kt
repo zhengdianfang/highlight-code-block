@@ -12,6 +12,7 @@ import android.widget.TextView
 import com.zhengdianfang.highlightr.HighlightEngine
 import com.zhengdianfang.highlightr.TokenTreeEmitter
 import com.zhengdianfang.highlightr.languages.JavaLanguage
+import com.zhengdianfang.highlightr.languages.JavascriptLanguage
 import com.zhengdianfang.highlightr.languages.KotlinLanguage
 import com.zhengdianfang.highlightr.themes.AtomLightTheme
 import com.zhengdianfang.highlightr.themes.Theme
@@ -39,6 +40,7 @@ class HighlightTextView @JvmOverloads constructor(
         // Register default languages
         engine.registerLanguage("kotlin", KotlinLanguage.get())
         engine.registerLanguage("java", JavaLanguage.get())
+        engine.registerLanguage("javascript", JavascriptLanguage.get())
         
         applyTheme()
     }
@@ -66,9 +68,12 @@ class HighlightTextView @JvmOverloads constructor(
         
         val startOffsets = ArrayDeque<Int>()
         val scopeNames = ArrayDeque<String>()
+        
+        data class SpanInfo(val start: Int, val end: Int, val scope: String, val depth: Int)
+        val spans = mutableListOf<SpanInfo>()
+        var currentDepth = 0
 
         result.events.forEach { event ->
-                println(event)
             when (event) {
                 is TokenTreeEmitter.Event.Text -> {
                     builder.append(event.text)
@@ -76,41 +81,50 @@ class HighlightTextView @JvmOverloads constructor(
                 is TokenTreeEmitter.Event.Start -> {
                     startOffsets.push(builder.length)
                     scopeNames.push(event.scope)
+                    currentDepth++
                 }
                 is TokenTreeEmitter.Event.End -> {
                     if (!startOffsets.isEmpty()) {
                         val start = startOffsets.pop()
                         val scope = scopeNames.pop()
                         val end = builder.length
+                        currentDepth--
                         
-                        val style = theme.styleFor(scope)
-                        if (style != null) {
-                            builder.setSpan(
-                                ForegroundColorSpan(style.color),
-                                start,
-                                end,
-                                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                            )
-                            
-                            if (style.bold) {
-                                builder.setSpan(
-                                    StyleSpan(Typeface.BOLD),
-                                    start,
-                                    end,
-                                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                                )
-                            }
-                            
-                            if (style.italic) {
-                                builder.setSpan(
-                                    StyleSpan(Typeface.ITALIC),
-                                    start,
-                                    end,
-                                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                                )
-                            }
-                        }
+                        spans.add(SpanInfo(start, end, scope, currentDepth))
                     }
+                }
+            }
+        }
+        
+        // Sort spans by depth (ascending), so deeper spans are applied last and override shallower ones
+        spans.sortBy { it.depth }
+        
+        spans.forEach { span ->
+            val style = theme.styleFor(span.scope)
+            if (style != null) {
+                builder.setSpan(
+                    ForegroundColorSpan(style.color),
+                    span.start,
+                    span.end,
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+                
+                if (style.bold) {
+                    builder.setSpan(
+                        StyleSpan(Typeface.BOLD),
+                        span.start,
+                        span.end,
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                    )
+                }
+                
+                if (style.italic) {
+                    builder.setSpan(
+                        StyleSpan(Typeface.ITALIC),
+                        span.start,
+                        span.end,
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                    )
                 }
             }
         }

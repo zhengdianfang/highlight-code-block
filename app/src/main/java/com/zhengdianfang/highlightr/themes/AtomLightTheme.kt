@@ -9,7 +9,7 @@ object AtomLightTheme : Theme {
         "literal" to Style(Color.parseColor("#4078f2")),
         "string" to Style(Color.parseColor("#50a14f")),
         "comment" to Style(Color.parseColor("#a0a1a7"), italic = true),
-        "variable" to Style(Color.parseColor("#383a42")),
+        "variable" to Style(Color.parseColor("#986801")),
         "doctag" to Style(Color.parseColor("#a626a4")),
         "number" to Style(Color.parseColor("#986801")),
         "constant" to Style(Color.parseColor("#986801")),
