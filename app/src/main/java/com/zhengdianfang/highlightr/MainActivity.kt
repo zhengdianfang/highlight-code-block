@@ -22,69 +22,77 @@ class MainActivity : Activity() {
         layout.setPadding(32, 32, 32, 32)
         layout.setBackgroundColor(0xFF000000.toInt()) // Black background
         
-        val highlightTextView = HighlightTextView(this)
-        highlightTextView.textSize = 16f
-        highlightTextView.setSource(
+        val kotlinHighlightTextView = HighlightTextView(this)
+        kotlinHighlightTextView.textSize = 16f
+        kotlinHighlightTextView.setPadding(0, 50, 0, 0)
+        kotlinHighlightTextView.setSource(
             """
-            package com.example.demo;
+            package com.example.kotlin
 
-            import java.util.List;
-            import java.util.ArrayList;
+            import java.util.Date
+
+            @Target(AnnotationTarget.CLASS)
+            annotation class MyAnnotation
+
+            @MyAnnotation
+            open class BaseClass(val id: Int) {
+                open fun printId() {
+                    println("ID: ${'$'}id")
+                }
+            }
+
+            object Singleton {
+                const val PI = 3.14159
+            }
+
+            interface Printable {
+                fun print()
+            }
 
             /**
-             * A complex Java example to test highlighting
+             * A comprehensive Kotlin example
              */
-            public class JavaDemo extends Thread {
-                private static final int MAX_COUNT = 100;
-                private volatile boolean isRunning = true;
+            data class User(val name: String, var age: Int) : BaseClass(1), Printable {
                 
-                @Override
-                public void run() {
-                    List<String> messages = new ArrayList<>();
-                    messages.add("Starting thread...");
+                val isActive: Boolean = true
+                val score: Double = 98.5
+                val hexValue: Int = 0xFF00AA
+                val floatValue: Float = 1.5f
+                
+                override fun print() {
+                    // String interpolation
+                    println("User: ${'$'}name, Age: ${'$'}age")
                     
-                    try {
-                        for (int i = 0; i < MAX_COUNT; i++) {
-                            if (!isRunning) break;
-                            
-                            // Check for even numbers
-                            if (i % 2 == 0) {
-                                System.out.println("Even: " + i);
-                            } else {
-                                System.out.println("Odd: " + i);
-                            }
-                            
-                            Thread.sleep(100);
-                        }
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    } finally {
-                        System.out.println("Thread finished.");
+                    val message = "Score: ${'$'}score"
+                    if (isActive) {
+                        println(message)
+                    }
+                    
+                    val list = listOf(1, 2, 3)
+                    for (item in list) {
+                        println("Item: ${'$'}item")
+                    }
+                    
+                    when (age) {
+                        in 0..18 -> println("Minor")
+                        else -> println("Adult")
                     }
                 }
                 
-                public void stopThread() {
-                    this.isRunning = false;
-                }
-                
-                public static void main(String[] args) {
-                    JavaDemo demo = new JavaDemo();
-                    demo.start();
-                    
-                    try {
-                        Thread.sleep(1000);
-                    } catch (Exception e) {
-                        // Ignore
+                companion object {
+                    @JvmStatic
+                    fun main(args: Array<String>) {
+                        val user = User("Alice", 30)
+                        user.print()
+                        println("PI: ${'$'}{Singleton.PI}")
                     }
-                    
-                    demo.stopThread();
                 }
             }
             """.trimIndent(),
-            "java"
+            "kotlin"
         )
-        
-        layout.addView(highlightTextView)
+        layout.addView(kotlinHighlightTextView)
+
         scrollView.addView(layout)
         setContentView(scrollView)
     }
