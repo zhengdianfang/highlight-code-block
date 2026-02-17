@@ -3,11 +3,19 @@ package com.zhengdianfang.highlightr
 import android.app.Activity
 import android.os.Bundle
 import android.widget.LinearLayout
+import android.widget.ScrollView
 import com.zhengdianfang.highlightr.ui.HighlightTextView
 
 class MainActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val scrollView = ScrollView(this)
+        scrollView.layoutParams = android.view.ViewGroup.LayoutParams(
+            android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+            android.view.ViewGroup.LayoutParams.MATCH_PARENT
+        )
+        scrollView.isFillViewport = true
         
         val layout = LinearLayout(this)
         layout.orientation = LinearLayout.VERTICAL
@@ -77,6 +85,7 @@ class MainActivity : Activity() {
         )
         
         layout.addView(highlightTextView)
-        setContentView(layout)
+        scrollView.addView(layout)
+        setContentView(scrollView)
     }
 }

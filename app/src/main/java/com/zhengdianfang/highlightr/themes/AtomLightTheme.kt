@@ -12,7 +12,7 @@ object AtomLightTheme : Theme {
         "variable" to Style(Color.parseColor("#986801")),
         "doctag" to Style(Color.parseColor("#a626a4")),
         "number" to Style(Color.parseColor("#986801")),
-        "constant" to Style(Color.parseColor("#383a42")),
+        "constant" to Style(Color.parseColor("#986801")),
         "type" to Style(Color.parseColor("#383a42")),
         "title" to Style(Color.parseColor("#c18401")),
         "field" to Style(Color.parseColor("#c18401")),
