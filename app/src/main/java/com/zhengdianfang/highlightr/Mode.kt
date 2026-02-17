@@ -18,6 +18,7 @@ open class Mode(
     var compiledBegin: Regex? = null,
     var compiledEnd: Regex? = null,
     var compiledIllegal: Regex? = null,
-    var terminators: Regex? = null,
+    var terminators: Any? = null, // MultiRegex
+    var compiledKeywords: Map<String, String>? = null,
     var parent: Mode? = null
 )

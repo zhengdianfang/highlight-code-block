@@ -1,5 +1,7 @@
 package com.zhengdianfang.highlightr
 
+import java.util.ArrayDeque
+
 class HighlightEngine {
     private val languages = mutableMapOf<String, Mode>()
 
@@ -19,27 +21,13 @@ class HighlightEngine {
         
         while (index < code.length) {
             val top = modeStack.last()
+            val terminators = top.terminators as? MultiRegex
             
-            val candidates = mutableListOf<Candidate>()
+            // Scan for next match
+            val matchResult = terminators?.find(code, index)
             
-            // 1. End of current mode (unless it's the root)
-            if (modeStack.size > 1) {
-                top.compiledEnd?.find(code, index)?.let {
-                    candidates.add(Candidate(it, MatcherType.END, top))
-                }
-            }
-            
-            // 2. Begin of children
-            top.contains.forEach { child ->
-                child.compiledBegin?.find(code, index)?.let {
-                    candidates.add(Candidate(it, MatcherType.BEGIN, child))
-                }
-            }
-            
-            val winner = candidates.minByOrNull { it.match.range.first }
-            
-            if (winner != null) {
-                val matchStart = winner.match.range.first
+            if (matchResult != null) {
+                val matchStart = matchResult.match.range.first
                 
                 // Process text before the match (potential keywords)
                 if (matchStart > index) {
@@ -47,26 +35,43 @@ class HighlightEngine {
                     processBuffer(text, top, emitter)
                 }
                 
-                if (winner.type == MatcherType.END) {
-                    emitter.addText(winner.match.value)
-                    modeStack.removeLast()
-                    emitter.endScope()
-                    index = winner.match.range.last + 1
-                } else if (winner.type == MatcherType.BEGIN) {
-                    val newMode = winner.mode!!
-                    modeStack.addLast(newMode)
-                    emitter.startScope(newMode.className ?: "")
-                    emitter.addText(winner.match.value)
-                    index = winner.match.range.last + 1
+                val matchText = matchResult.match.value
+                
+                when (matchResult.type) {
+                    MatcherType.END -> {
+                        // Handle end of mode
+                        if (modeStack.size > 1) {
+                            emitter.addText(matchText)
+                            modeStack.removeLast()
+                            emitter.endScope()
+                        } else {
+                            // Should not happen for root mode usually, just treat as text
+                            emitter.addText(matchText)
+                        }
+                        index = matchResult.match.range.last + 1
+                    }
+                    MatcherType.BEGIN -> {
+                        val newMode = matchResult.mode!!
+                        modeStack.addLast(newMode)
+                        emitter.startScope(newMode.className ?: "")
+                        emitter.addText(matchText)
+                        index = matchResult.match.range.last + 1
+                    }
+                    MatcherType.ILLEGAL -> {
+                        // Abort parsing as per flowchart
+                        throw IllegalStateException("Illegal match found: $matchText at index $matchStart")
+                    }
                 }
             } else {
-                // No more matches, consume rest
+                // No more matches, process remaining text
                 val text = code.substring(index)
                 processBuffer(text, top, emitter)
                 break
             }
         }
         
+        // Close any remaining scopes (except root?)
+        // The original code closed all > 1.
         while (modeStack.size > 1) {
             emitter.endScope()
             modeStack.removeLast()
@@ -81,9 +86,7 @@ class HighlightEngine {
             return
         }
 
-        // Simple keyword matching: split by word boundaries and check map
-        // This is a naive implementation. highlight.js does this more robustly.
-        val lexemeRegex = Regex(mode.lexemes) 
+        val lexemeRegex = Regex(mode.lexemes)
         var lastIdx = 0
         
         lexemeRegex.findAll(text).forEach { match ->
@@ -93,7 +96,7 @@ class HighlightEngine {
             }
             
             val word = match.value
-            val keywordType = findKeyword(word, mode)
+            val keywordType = mode.compiledKeywords?.get(word)
             
             if (keywordType != null) {
                 emitter.startScope(keywordType)
@@ -111,32 +114,87 @@ class HighlightEngine {
         }
     }
 
-    private fun findKeyword(word: String, mode: Mode): String? {
-        // keywords is Map<String, String> where key is type ("keyword") and value is space-separated words
-        // We need to invert this structure for fast lookup or iterate.
-        // For MVP, iterate.
-        mode.keywords?.forEach { (type, words) ->
-            if (words.split(" ").contains(word)) {
-                return type
-            }
-        }
-        return null
-    }
-
-    private data class Candidate(val match: MatchResult, val type: MatcherType, val mode: Mode?)
-    private enum class MatcherType { BEGIN, END }
-
-    private fun compile(mode: Mode) {
-        if (mode.compiledBegin != null) return
+    private fun compile(mode: Mode, parent: Mode? = null) {
+        if (mode.terminators != null) return // Already compiled
         
+        mode.parent = parent
+        
+        // Compile regexes
         mode.begin?.let { mode.compiledBegin = Regex(it) }
-        mode.end?.let { mode.compiledEnd = Regex(it) } // Note: end regex might need back-references logic, ignoring for now
+        mode.end?.let { mode.compiledEnd = Regex(it) }
+        mode.illegal?.let { mode.compiledIllegal = Regex(it) }
         
-        mode.contains.forEach { compile(it) }
+        // Compile keywords (Invert map for O(1) lookup)
+        if (mode.compiledKeywords == null && !mode.keywords.isNullOrEmpty()) {
+            val compiled = mutableMapOf<String, String>()
+            mode.keywords.forEach { (type, words) ->
+                words.split(" ").forEach { word ->
+                    compiled[word] = type
+                }
+            }
+            mode.compiledKeywords = compiled
+        }
+        
+        // Recursively compile children
+        mode.contains.forEach { compile(it, mode) }
+        
+        // Build MultiRegex (The core of the scanner)
+        val matchers = mutableListOf<Matcher>()
+        
+        // 1. End matcher (if not root/parent exists)
+        // Check if this mode has an end pattern
+        mode.compiledEnd?.let { 
+             matchers.add(Matcher(it, MatcherType.END)) 
+        }
+        
+        // 2. Illegal matcher
+        mode.compiledIllegal?.let { matchers.add(Matcher(it, MatcherType.ILLEGAL)) }
+        
+        // 3. Child begin matchers
+        mode.contains.forEach { child ->
+            child.compiledBegin?.let { matchers.add(Matcher(it, MatcherType.BEGIN, child)) }
+        }
+        
+        mode.terminators = MultiRegex(matchers)
     }
     
+    // --- Helper Classes ---
+
     data class Result(
         val events: List<TokenTreeEmitter.Event>,
         val language: String
     )
+    
+    enum class MatcherType { BEGIN, END, ILLEGAL }
+    
+    data class Matcher(val regex: Regex, val type: MatcherType, val mode: Mode? = null)
+    
+    data class MultiMatchResult(val match: MatchResult, val type: MatcherType, val mode: Mode?)
+
+    /**
+     * Helper to simulate a merged regex by finding the earliest match among multiple regexes.
+     * This avoids complex regex merging logic while preserving the behavior.
+     */
+    class MultiRegex(private val matchers: List<Matcher>) {
+        fun find(input: CharSequence, startIndex: Int = 0): MultiMatchResult? {
+            var bestMatch: MatchResult? = null
+            var bestMatcher: Matcher? = null
+            
+            for (matcher in matchers) {
+                val match = matcher.regex.find(input, startIndex)
+                if (match != null) {
+                    if (bestMatch == null || match.range.first < bestMatch.range.first) {
+                        bestMatch = match
+                        bestMatcher = matcher
+                    }
+                }
+            }
+            
+            return if (bestMatch != null && bestMatcher != null) {
+                MultiMatchResult(bestMatch, bestMatcher.type, bestMatcher.mode)
+            } else {
+                null
+            }
+        }
+    }
 }

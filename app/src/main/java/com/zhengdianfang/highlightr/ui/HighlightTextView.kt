@@ -11,6 +11,7 @@ import android.util.AttributeSet
 import android.widget.TextView
 import com.zhengdianfang.highlightr.HighlightEngine
 import com.zhengdianfang.highlightr.TokenTreeEmitter
+import com.zhengdianfang.highlightr.languages.JavaLanguage
 import com.zhengdianfang.highlightr.languages.KotlinLanguage
 import com.zhengdianfang.highlightr.themes.AtomLightTheme
 import com.zhengdianfang.highlightr.themes.Theme
@@ -37,6 +38,7 @@ class HighlightTextView @JvmOverloads constructor(
     init {
         // Register default languages
         engine.registerLanguage("kotlin", KotlinLanguage.get())
+        engine.registerLanguage("java", JavaLanguage.get())
         
         applyTheme()
     }

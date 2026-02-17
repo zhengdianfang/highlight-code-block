@@ -15,7 +15,7 @@ object KotlinLanguage {
             begin = "\"", 
             end = "\"",
             contains = listOf(
-                Mode(className = "variable", begin = "\\$[A-Za-z0-9_]+")
+                Mode(className = "variable", begin = "\\$[A-Za-z0-9_]+", end = "")
             )
         )
 

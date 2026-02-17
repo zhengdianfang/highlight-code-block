@@ -18,15 +18,62 @@ class MainActivity : Activity() {
         highlightTextView.textSize = 16f
         highlightTextView.setSource(
             """
-            // Example Kotlin code
-            package com.example
-            
-            fun main(args: Array<String>) {
-                val greeting = "Hello, World!"
-                println(greeting)
+            package com.example.demo;
+
+            import java.util.List;
+            import java.util.ArrayList;
+
+            /**
+             * A complex Java example to test highlighting
+             */
+            public class JavaDemo extends Thread {
+                private static final int MAX_COUNT = 100;
+                private volatile boolean isRunning = true;
+                
+                @Override
+                public void run() {
+                    List<String> messages = new ArrayList<>();
+                    messages.add("Starting thread...");
+                    
+                    try {
+                        for (int i = 0; i < MAX_COUNT; i++) {
+                            if (!isRunning) break;
+                            
+                            // Check for even numbers
+                            if (i % 2 == 0) {
+                                System.out.println("Even: " + i);
+                            } else {
+                                System.out.println("Odd: " + i);
+                            }
+                            
+                            Thread.sleep(100);
+                        }
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    } finally {
+                        System.out.println("Thread finished.");
+                    }
+                }
+                
+                public void stopThread() {
+                    this.isRunning = false;
+                }
+                
+                public static void main(String[] args) {
+                    JavaDemo demo = new JavaDemo();
+                    demo.start();
+                    
+                    try {
+                        Thread.sleep(1000);
+                    } catch (Exception e) {
+                        // Ignore
+                    }
+                    
+                    demo.stopThread();
+                }
             }
             """.trimIndent(),
-            "kotlin"
+            "java"
         )
         
         layout.addView(highlightTextView)
