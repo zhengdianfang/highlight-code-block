@@ -21,6 +21,7 @@ class MainActivity : Activity() {
         val cssButton = createButton("CSS Test", "css", "test.css")
         val htmlButton = createButton("HTML Test", "html", "test.html")
         val xmlButton = createButton("XML Test", "xml", "test.xml")
+        val swiftButton = createButton("Swift Test", "swift", "test.swift")
 
         layout.addView(javaButton)
         layout.addView(kotlinButton)
@@ -29,6 +30,7 @@ class MainActivity : Activity() {
         layout.addView(cssButton)
         layout.addView(htmlButton)
         layout.addView(xmlButton)
+        layout.addView(swiftButton)
 
         setContentView(layout)
     }
