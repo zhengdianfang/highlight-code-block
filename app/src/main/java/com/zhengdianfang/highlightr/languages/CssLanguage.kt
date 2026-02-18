@@ -77,7 +77,7 @@ object CssLanguage {
 
         // Properties (heuristics: word followed by colon)
         val PROPERTY = Mode(
-            className = "attribute",
+            className = "string",
             begin = "(?<![-a-z])[-a-z]+(?=\\s*:)",
             end = ""
         )

@@ -52,10 +52,78 @@ class HighlightEngine {
                     }
                     MatcherType.BEGIN -> {
                         val newMode = matchResult.mode!!
-                        modeStack.addLast(newMode)
-                        emitter.startScope(newMode.className ?: "")
-                        emitter.addText(matchText)
-                        index = matchResult.match.range.last + 1
+                        val subLanguageName = newMode.subLanguage
+
+                        if (subLanguageName != null) {
+                            val scopeName = newMode.className ?: ""
+
+                            if (scopeName.isNotEmpty()) {
+                                emitter.startScope(scopeName)
+                                emitter.addText(matchText)
+                                emitter.endScope()
+                            } else {
+                                emitter.addText(matchText)
+                            }
+
+                            val contentStart = matchResult.match.range.last + 1
+                            val endRegex = newMode.compiledEnd
+
+                            if (endRegex != null) {
+                                val endMatch = endRegex.find(code, contentStart)
+
+                                if (endMatch != null) {
+                                    val subCode = code.substring(contentStart, endMatch.range.first)
+                                    val subLanguage = languages[subLanguageName]
+                                        ?: throw IllegalStateException("Sub-language $subLanguageName not registered")
+
+                                    compile(subLanguage)
+
+                                    val subResult = highlight(subCode, subLanguageName)
+                                    subResult.events.forEach { event ->
+                                        when (event) {
+                                            is TokenTreeEmitter.Event.Text -> emitter.addText(event.text)
+                                            is TokenTreeEmitter.Event.Start -> emitter.startScope(event.scope)
+                                            is TokenTreeEmitter.Event.End -> emitter.endScope()
+                                        }
+                                    }
+
+                                    val endText = endMatch.value
+                                    if (scopeName.isNotEmpty()) {
+                                        emitter.startScope(scopeName)
+                                        emitter.addText(endText)
+                                        emitter.endScope()
+                                    } else {
+                                        emitter.addText(endText)
+                                    }
+
+                                    index = endMatch.range.last + 1
+                                } else {
+                                    val subCode = code.substring(contentStart)
+                                    val subLanguage = languages[subLanguageName]
+                                        ?: throw IllegalStateException("Sub-language $subLanguageName not registered")
+
+                                    compile(subLanguage)
+
+                                    val subResult = highlight(subCode, subLanguageName)
+                                    subResult.events.forEach { event ->
+                                        when (event) {
+                                            is TokenTreeEmitter.Event.Text -> emitter.addText(event.text)
+                                            is TokenTreeEmitter.Event.Start -> emitter.startScope(event.scope)
+                                            is TokenTreeEmitter.Event.End -> emitter.endScope()
+                                        }
+                                    }
+
+                                    index = code.length
+                                }
+                            } else {
+                                index = matchResult.match.range.last + 1
+                            }
+                        } else {
+                            modeStack.addLast(newMode)
+                            emitter.startScope(newMode.className ?: "")
+                            emitter.addText(matchText)
+                            index = matchResult.match.range.last + 1
+                        }
                     }
                     MatcherType.ILLEGAL -> {
                         // Abort parsing as per flowchart
