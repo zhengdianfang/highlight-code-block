@@ -18,11 +18,13 @@ class MainActivity : Activity() {
         val kotlinButton = createButton("Kotlin Test", "kotlin", "test.kt")
         val jsButton = createButton("JavaScript Test", "javascript", "test.js")
         val cppButton = createButton("C++ Test", "cpp", "test.cpp")
+        val cssButton = createButton("CSS Test", "css", "test.css")
 
         layout.addView(javaButton)
         layout.addView(kotlinButton)
         layout.addView(jsButton)
         layout.addView(cppButton)
+        layout.addView(cssButton)
 
         setContentView(layout)
     }

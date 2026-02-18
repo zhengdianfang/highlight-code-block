@@ -24,6 +24,14 @@ object AtomLightTheme : Theme {
     )
 
     override fun styleFor(scope: String): Style? {
+        if (scope.startsWith("selector-")) {
+            return when (scope) {
+                "selector-tag" -> styles["template-variable"]
+                "selector-id" -> styles["literal"]
+                "selector-class" -> styles["variable"]
+                else -> null
+            }
+        }
         return styles[scope]
     }
 
