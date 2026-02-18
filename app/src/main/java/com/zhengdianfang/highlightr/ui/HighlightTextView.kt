@@ -14,6 +14,7 @@ import com.zhengdianfang.highlightr.TokenTreeEmitter
 import com.zhengdianfang.highlightr.languages.JavaLanguage
 import com.zhengdianfang.highlightr.languages.JavascriptLanguage
 import com.zhengdianfang.highlightr.languages.KotlinLanguage
+import com.zhengdianfang.highlightr.languages.CppLanguage
 import com.zhengdianfang.highlightr.themes.AtomLightTheme
 import com.zhengdianfang.highlightr.themes.Theme
 import java.util.ArrayDeque
@@ -41,6 +42,7 @@ class HighlightTextView @JvmOverloads constructor(
         engine.registerLanguage("kotlin", KotlinLanguage.get())
         engine.registerLanguage("java", JavaLanguage.get())
         engine.registerLanguage("javascript", JavascriptLanguage.get())
+        engine.registerLanguage("cpp", CppLanguage.get())
         
         applyTheme()
     }

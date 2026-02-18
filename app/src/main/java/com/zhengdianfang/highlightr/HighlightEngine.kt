@@ -128,8 +128,10 @@ class HighlightEngine {
         if (mode.compiledKeywords == null && !mode.keywords.isNullOrEmpty()) {
             val compiled = mutableMapOf<String, String>()
             mode.keywords.forEach { (type, words) ->
-                words.split(" ").forEach { word ->
-                    compiled[word] = type
+                words.split(Regex("\\s+")).forEach { word ->
+                    if (word.isNotEmpty()) {
+                        compiled[word] = type
+                    }
                 }
             }
             mode.compiledKeywords = compiled

@@ -19,7 +19,8 @@ object AtomLightTheme : Theme {
         "function" to Style(Color.parseColor("#4078f2")),
         "meta" to Style(Color.parseColor("#4078f2")),
         "keyword_void" to Style(Color.parseColor("#a626a4")),
-        "template-variable" to Style(Color.parseColor("#E45749"))
+        "template-variable" to Style(Color.parseColor("#E45749")),
+        "function-call" to Style(Color.parseColor("#c18401"))
     )
 
     override fun styleFor(scope: String): Style? {
