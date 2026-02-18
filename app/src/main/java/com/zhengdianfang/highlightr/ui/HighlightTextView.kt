@@ -17,6 +17,7 @@ import com.zhengdianfang.highlightr.languages.KotlinLanguage
 import com.zhengdianfang.highlightr.languages.CppLanguage
 import com.zhengdianfang.highlightr.languages.CssLanguage
 import com.zhengdianfang.highlightr.languages.HtmlLanguage
+import com.zhengdianfang.highlightr.languages.XmlLanguage
 import com.zhengdianfang.highlightr.themes.AtomLightTheme
 import com.zhengdianfang.highlightr.themes.Theme
 import java.util.ArrayDeque
@@ -47,6 +48,7 @@ class HighlightTextView @JvmOverloads constructor(
         engine.registerLanguage("cpp", CppLanguage.get())
         engine.registerLanguage("css", CssLanguage.get())
         engine.registerLanguage("html", HtmlLanguage.get())
+        engine.registerLanguage("xml", XmlLanguage.get())
         
         applyTheme()
     }
