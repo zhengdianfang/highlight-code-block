@@ -19,6 +19,7 @@ import com.zhengdianfang.highlightr.languages.CssLanguage
 import com.zhengdianfang.highlightr.languages.HtmlLanguage
 import com.zhengdianfang.highlightr.languages.XmlLanguage
 import com.zhengdianfang.highlightr.languages.SwiftLanguage
+import com.zhengdianfang.highlightr.languages.PythonLanguage
 import com.zhengdianfang.highlightr.themes.AtomLightTheme
 import com.zhengdianfang.highlightr.themes.Theme
 import java.util.ArrayDeque
@@ -51,6 +52,7 @@ class HighlightTextView @JvmOverloads constructor(
         engine.registerLanguage("html", HtmlLanguage.get())
         engine.registerLanguage("xml", XmlLanguage.get())
         engine.registerLanguage("swift", SwiftLanguage.get())
+        engine.registerLanguage("python", PythonLanguage.get())
         
         applyTheme()
     }
