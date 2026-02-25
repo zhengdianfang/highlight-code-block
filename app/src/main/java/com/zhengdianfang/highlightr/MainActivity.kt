@@ -23,6 +23,7 @@ class MainActivity : Activity() {
         val xmlButton = createButton("XML Test", "xml", "test.xml")
         val swiftButton = createButton("Swift Test", "swift", "test.swift")
         val pythonButton = createButton("Python Test", "python", "test.py")
+        val phpButton = createButton("PHP Test", "php", "test.php")
 
         layout.addView(javaButton)
         layout.addView(kotlinButton)
@@ -33,6 +34,7 @@ class MainActivity : Activity() {
         layout.addView(xmlButton)
         layout.addView(swiftButton)
         layout.addView(pythonButton)
+        layout.addView(phpButton)
 
         setContentView(layout)
     }
