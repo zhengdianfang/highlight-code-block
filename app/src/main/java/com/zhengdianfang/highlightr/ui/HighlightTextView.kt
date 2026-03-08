@@ -23,6 +23,7 @@ import com.zhengdianfang.highlightr.languages.PythonLanguage
 import com.zhengdianfang.highlightr.languages.PhpLanguage
 import com.zhengdianfang.highlightr.languages.ShellLanguage
 import com.zhengdianfang.highlightr.languages.SqlLanguage
+import com.zhengdianfang.highlightr.languages.GoLanguage
 
 import com.zhengdianfang.highlightr.themes.AtomLightTheme
 import com.zhengdianfang.highlightr.themes.Theme
@@ -60,6 +61,7 @@ class HighlightTextView @JvmOverloads constructor(
         engine.registerLanguage("php", PhpLanguage.get())
         engine.registerLanguage("shell", ShellLanguage.get())
         engine.registerLanguage("sql", SqlLanguage.get())
+        engine.registerLanguage("go", GoLanguage.get())
         applyTheme()
     }
     

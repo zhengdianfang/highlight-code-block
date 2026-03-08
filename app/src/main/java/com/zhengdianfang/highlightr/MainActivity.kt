@@ -26,6 +26,7 @@ class MainActivity : Activity() {
         val phpButton = createButton("PHP Test", "php", "test.php")
         val shellButton = createButton("Shell Test", "shell", "test.sh")
         val sqlButton = createButton("SQL Test", "sql", "test.sql")
+        val goButton = createButton("Go Test", "go", "test.go")
 
         layout.addView(javaButton)
         layout.addView(kotlinButton)
@@ -39,6 +40,7 @@ class MainActivity : Activity() {
         layout.addView(phpButton)
         layout.addView(shellButton)
         layout.addView(sqlButton)
+        layout.addView(goButton)
 
         setContentView(layout)
     }
