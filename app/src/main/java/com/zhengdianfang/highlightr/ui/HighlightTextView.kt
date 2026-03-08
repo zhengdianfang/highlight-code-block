@@ -27,6 +27,7 @@ import com.zhengdianfang.highlightr.languages.GoLanguage
 
 import com.zhengdianfang.highlightr.themes.AtomLightTheme
 import com.zhengdianfang.highlightr.themes.Theme
+import com.zhengdianfang.highlightr.themes.AtomDarkTheme
 import java.util.ArrayDeque
 
 class HighlightTextView @JvmOverloads constructor(
@@ -35,7 +36,7 @@ class HighlightTextView @JvmOverloads constructor(
 
     private val engine = HighlightEngine()
     
-    var theme: Theme = AtomLightTheme
+    var theme: Theme = AtomDarkTheme
         set(value) {
             field = value
             applyTheme()
