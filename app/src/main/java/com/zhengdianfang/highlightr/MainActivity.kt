@@ -27,6 +27,7 @@ class MainActivity : Activity() {
         val shellButton = createButton("Shell Test", "shell", "test.sh")
         val sqlButton = createButton("SQL Test", "sql", "test.sql")
         val goButton = createButton("Go Test", "go", "test.go")
+        val typescriptButton = createButton("TypeScript Test", "typescript", "test.ts")
 
         layout.addView(javaButton)
         layout.addView(kotlinButton)
@@ -41,6 +42,7 @@ class MainActivity : Activity() {
         layout.addView(shellButton)
         layout.addView(sqlButton)
         layout.addView(goButton)
+        layout.addView(typescriptButton)
 
         setContentView(layout)
     }
